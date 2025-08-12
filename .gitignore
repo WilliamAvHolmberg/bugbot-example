@@ -1,4 +1,22 @@
-backend/bin/**/*
-backend/obj/**/*
+# .NET Build artifacts
+backend/bin/
+backend/obj/
 
-frontend/node_modules/**/*
+# Frontend dependencies
+frontend/node_modules/
+
+# IDE and editor files
+.vs/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

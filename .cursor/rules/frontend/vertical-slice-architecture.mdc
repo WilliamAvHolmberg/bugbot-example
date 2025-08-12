@@ -1,0 +1,47 @@
+---
+description: Frontend vertical-slice architecture and file layout
+globs: frontend/src/**/*.ts,frontend/src/**/*.tsx
+alwaysApply: false
+---
+
+### **Goals**
+- Organize by feature, not by technical layer.
+- Co-locate UI, hooks, feature-specific types, and API glue inside the slice.
+- Keep cross-cutting concerns in `app/`, `shared/`, or `lib/`.
+
+### **Target structure**
+```
+frontend/src/
+  app/                 # layout, providers (React Query, theme), router setup
+  features/
+    users/
+      routes/          # route-level pages for this feature
+        UsersPage.tsx
+      components/      # UI components only used by this feature
+        UsersTable.tsx
+      hooks/           # feature-specific hooks (state, adapters around generated client)
+        useCreateUser.ts
+        useUsersQuery.ts
+      types/           # local DTOs if needed; prefer server DTOs
+      index.ts         # re-exports for convenience
+  shared/              # reusable UI and utilities across features
+  api/
+    generated.ts       # Orval output (do not edit)
+```
+
+### **Conventions**
+- Pages live under `features/<feature>/routes`; router imports these pages.
+- Components in `components` are presentation-focused; no remote I/O.
+- Hooks adapt generated client functions to the feature's needs (params, mapping, cache keys).
+- Prefer server DTOs from `api/generated`; only create local `types` when projecting for UI.
+- Re-export feature API from `features/<feature>/index.ts` for clean imports.
+
+### **Routing**
+- Route paths reflect feature names (e.g., `/users`).
+- Keep `AppLayout` and top-level providers in `app/`.
+
+### **Refactor guidance**
+- Move existing `pages/UsersPage.tsx` → `features/users/routes/UsersPage.tsx`.
+- Move `components/UsersTable.tsx` → `features/users/components/UsersTable.tsx`.
+- Create hooks like `useUsersQuery` and `useCreateUser` under `features/users/hooks/`, wrapping generated hooks if needed.
+- Update imports and router to point at `features/users/routes/UsersPage`.

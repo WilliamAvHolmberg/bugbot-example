@@ -1,0 +1,20 @@
+---
+description: Vertical-slice with MediatR for backend features
+globs: backend/Features/**/*.cs
+alwaysApply: false
+---
+
+### **Slice layout**
+- Group per feature under `backend/Features/<Feature>/`.
+- Colocate: `Controller` (or controller partial), `Command/Query` records, `Handlers`, `DTOs`, and any helpers.
+
+### **Pattern**
+- Commands: `public sealed record <Action>Command(...) : IRequest<TResult>`.
+- Queries: `public sealed record <Action>Query(...) : IRequest<TResult>`.
+- Handlers: `public sealed class <Action>Handler(AppDbContext db) : IRequestHandler<...>`.
+- Controllers: thin, forward to mediator and map to HTTP results.
+
+### **Guidance**
+- Create DTOs tailored for external API; avoid leaking EF entities.
+- Keep business rules in handlers; avoid logic in controllers.
+- Favor `AsNoTracking` for queries; guard clauses for errors.

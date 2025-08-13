@@ -1,13 +1,24 @@
 import { PropsWithChildren, useState } from 'react'
-import { AppBar, Avatar, Box, Drawer, IconButton, InputBase, Toolbar, Typography } from '@mui/material'
+import { AppBar, Avatar, Box, Drawer, IconButton, InputBase, Menu, MenuItem, Toolbar, Typography } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
+import LogoutIcon from '@mui/icons-material/Logout'
 import { Sidebar } from './Sidebar.tsx'
+import { useAuth } from '../../auth/authContext'
 
 const drawerWidth = 260
 
 export function AppLayout({ children }: PropsWithChildren) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const toggle = () => setMobileOpen((v) => !v)
+  const { isAuthenticated, user, logout } = useAuth()
+  const [userMenuEl, setUserMenuEl] = useState<null | HTMLElement>(null)
+  const openUserMenu = (e: React.MouseEvent<HTMLElement>) => setUserMenuEl(e.currentTarget)
+  const closeUserMenu = () => setUserMenuEl(null)
+  const handleLogout = async () => {
+    closeUserMenu()
+    await logout()
+  }
+  const avatarLabel = (user?.email?.[0] ?? 'A').toUpperCase()
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -33,7 +44,22 @@ export function AppLayout({ children }: PropsWithChildren) {
           })}>
             <InputBase placeholder="Search…" sx={{ fontSize: 14, width: '100%' }} />
           </Box>
-          <Avatar sx={{ width: 28, height: 28, fontSize: 14 }}>A</Avatar>
+          <IconButton size="small" onClick={isAuthenticated ? openUserMenu : undefined} aria-label="account">
+            <Avatar sx={{ width: 28, height: 28, fontSize: 14 }}>{avatarLabel}</Avatar>
+          </IconButton>
+          <Menu
+            anchorEl={userMenuEl}
+            open={!!userMenuEl}
+            onClose={closeUserMenu}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          >
+            {isAuthenticated && (
+              <MenuItem onClick={handleLogout}>
+                <LogoutIcon fontSize="small" style={{ marginRight: 8 }} /> Logout
+              </MenuItem>
+            )}
+          </Menu>
         </Toolbar>
       </AppBar>
 

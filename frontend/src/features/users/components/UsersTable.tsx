@@ -1,9 +1,8 @@
 import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid'
 import type { GridColDef, GridPaginationModel, GridFilterModel, GridSortModel } from '@mui/x-data-grid'
 import { Box } from '@mui/material'
-import { useEffect, useMemo, useState } from 'react'
-import { useDebounce } from '../utils/useDebounce'
-import { useGetApiUsers } from '../api/generated'
+import { useMemo, useState } from 'react'
+import { useGetApiUsers } from '../../../api/generated'
 
 function SoftToolbar() {
   return (
@@ -28,24 +27,27 @@ function SoftToolbar() {
   )
 }
 
-type Row = { id: string; email: string; name: string; createdUtc?: string }
+type Row = { id: string; email: string; fullName: string; createdUtc?: string }
 
 export function UsersTable() {
-  const [quick, setQuick] = useState('')
-  const debouncedQuick = useDebounce(quick, 300)
-
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 0, pageSize: 20 })
   const [sortModel, setSortModel] = useState<GridSortModel>([])
+  // Keep filter model controlled to read quick filter value for server search
+  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [], quickFilterValues: [] })
+
   const params = useMemo(() => {
-    const sort = sortModel[0]
-    const sortParam = sort ? `${sort.field}:${sort.sort}` : undefined
-    return { search: debouncedQuick || undefined, page: paginationModel.page + 1, pageSize: paginationModel.pageSize, sort: sortParam }
-  }, [debouncedQuick, paginationModel, sortModel])
+    const quick = filterModel.quickFilterValues?.[0] ?? ''
+    return {
+      search: quick || undefined,
+      page: paginationModel.page + 1,
+      pageSize: paginationModel.pageSize,
+    }
+  }, [filterModel, paginationModel])
 
   const query = useGetApiUsers(params, { query: { staleTime: 30000 } })
 
-  const rows: Row[] = (query.data?.data?.users ?? []).map((u) => ({ id: u.id!, email: u.email ?? '', name: u.email?? '', createdUtc: u.createdAt }))
-  const rowCount = query.data?.data?.totalCount ?? 0
+  const rows: Row[] = (query.data?.data.items ?? []).map((u) => ({ id: u.id!, email: u.email ?? '', fullName: u.name ?? '', createdUtc: u.createdUtc }))
+  const rowCount = query.data?.data.total ?? 0
 
   const columns = useMemo<GridColDef<Row>[]>(
     () => [
@@ -59,30 +61,19 @@ export function UsersTable() {
           </a>
         ),
       },
-      { field: 'name', headerName: 'Name', flex: 1 },
+      { field: 'fullName', headerName: 'Name', flex: 1 },
       {
         field: 'createdUtc',
         headerName: 'Created',
         flex: 1,
-        valueFormatter: (p: any) => (p.value ? new Date(p.value as string).toLocaleString() : ''),
+        valueFormatter: (p: { value?: string }) => (p.value ? new Date(p.value).toLocaleString() : ''),
       },
     ],
     []
   )
 
-  // Bridge DataGrid quick filter to our server search
-  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [], quickFilterValues: [] })
-  useEffect(() => {
-    const val = filterModel.quickFilterValues?.[0] ?? ''
-    setQuick(val)
-  }, [filterModel])
-
-  // Refetch on param changes (React Query will handle dedupe)
-  useEffect(() => {
-    query.refetch()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuick, paginationModel, sortModel])
-
+  // React Query refetches automatically when `params` changes
+  console.log(rows, query.data?.data.items)
   return (
     <Box sx={{ width: '100%' }}>
       <DataGrid
@@ -97,8 +88,13 @@ export function UsersTable() {
         onPaginationModelChange={setPaginationModel}
         pageSizeOptions={[10, 20, 50]}
         loading={query.isFetching}
+        filterMode="server"
         filterModel={filterModel}
-        onFilterModelChange={setFilterModel}
+        onFilterModelChange={(model) => {
+          setFilterModel(model)
+          setPaginationModel((prev) => ({ ...prev, page: 0 }))
+        }}
+        sortingMode="client"
         sortModel={sortModel}
         onSortModelChange={setSortModel}
         disableRowSelectionOnClick

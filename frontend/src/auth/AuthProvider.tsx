@@ -1,32 +1,8 @@
-import { createContext, useContext, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { PropsWithChildren } from 'react'
 import { usePostApiAuthSendOtp, usePostApiAuthVerifyOtp, useGetApiAuthMe, usePostApiAuthLogout } from '../api/generated'
 import { useQueryClient } from '@tanstack/react-query'
-
-export type AuthUser = { userId: string; email: string }
-
-export type OtpStep = 'idle' | 'email-sent' | 'verifying'
-
-export interface AuthState {
-  user: AuthUser | null
-  isAuthenticated: boolean
-  isLoading: boolean
-  otpStep: OtpStep
-  otpEmail: string | null
-  error: string | null
-}
-
-export interface AuthActions {
-  sendOtp: (email: string) => Promise<boolean>
-  verifyOtp: (email: string, otpCode: string) => Promise<boolean>
-  logout: () => Promise<void>
-  clearError: () => void
-  refetchAuth: () => void
-}
-
-export type AuthContextType = AuthState & AuthActions
-
-const AuthContext = createContext<AuthContextType | null>(null)
+import { AuthContext, type AuthContextType, type AuthState, type AuthUser } from './authContext'
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient()
@@ -119,12 +95,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth(): AuthContextType {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider')
-  return ctx
 }
 
 

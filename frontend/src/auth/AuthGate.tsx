@@ -1,6 +1,6 @@
 import { Box, Button, Paper, Stack, TextField, Typography } from '@mui/material'
 import { useState } from 'react'
-import { useAuth } from './AuthProvider'
+import { useAuth } from './authContext'
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth()

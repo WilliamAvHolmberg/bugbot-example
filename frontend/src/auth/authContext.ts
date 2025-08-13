@@ -18,6 +18,7 @@ export interface AuthActions {
   verifyOtp: (email: string, otpCode: string) => Promise<boolean>
   logout: () => Promise<void>
   clearError: () => void
+  backToEmail: () => void
   refetchAuth: () => void
 }
 

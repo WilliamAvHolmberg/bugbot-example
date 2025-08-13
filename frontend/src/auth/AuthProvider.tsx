@@ -87,6 +87,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }
 
   const clearError = () => setState((s) => ({ ...s, error: null }))
+  const backToEmail = () => setState((s) => ({ ...s, otpStep: 'idle' }))
   const refetchAuth = () => me.refetch()
 
   const value: AuthContextType = {
@@ -95,6 +96,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     verifyOtp,
     logout,
     clearError,
+    backToEmail,
     refetchAuth,
   }
 

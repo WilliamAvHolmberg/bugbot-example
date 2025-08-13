@@ -30,8 +30,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
     if (me.isLoading) {
       return { isLoading: true, isAuthenticated: false, user: null as AuthUser | null }
     }
-    const data = me.data?.data
-    const isAuthenticated = !!data?.isAuthenticated && !!data?.userId && !!data?.email
+    // OpenAPI may not describe the /me shape precisely; narrow defensively
+    const raw = me.data?.data as unknown
+    const data = raw && typeof raw === 'object'
+      ? (raw as Partial<{ isAuthenticated: boolean; userId: string; email: string }>)
+      : undefined
+    const isAuthenticated = !!(data?.isAuthenticated && data?.userId && data?.email)
     const user = isAuthenticated ? ({ userId: data!.userId!, email: data!.email! } as AuthUser) : null
     return { isLoading: false, isAuthenticated, user }
   }, [me.isLoading, me.data])

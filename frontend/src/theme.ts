@@ -18,7 +18,7 @@ export const theme = createTheme({
   components: {
     MuiAppBar: {
       styleOverrides: {
-        root: {
+        root: ({ theme }) => ({
           boxShadow: 'none',
           borderRadius: 0,
           border: 'none',
@@ -27,7 +27,9 @@ export const theme = createTheme({
           WebkitBackdropFilter: 'saturate(180%) blur(8px)',
           color: '#0F172A',
           borderBottom: `1px solid ${grey[200]}`,
-        },
+          // Keep AppBar above Drawer globally so individual pages don't need zIndex sx
+          zIndex: theme.zIndex.drawer + 1,
+        }),
       },
     },
     MuiPaper: {
@@ -65,19 +67,59 @@ export const theme = createTheme({
       },
     },
     MuiDataGrid: {
+      defaultProps: {
+        density: 'compact',
+        rowHeight: 44,
+        columnHeaderHeight: 44,
+        disableColumnMenu: true,
+        disableRowSelectionOnClick: true,
+      },
       styleOverrides: {
-        root: {
-          border: `1px solid ${grey[200]}`,
+        root: ({ theme }) => ({
+          // Container look and feel
+          '--DataGrid-containerBackground': 'transparent',
+          '--DataGrid-cellPaddingInline': '14px',
+          '--DataGrid-cellPaddingBlock': '10px',
+          border: `1px solid ${theme.palette.divider}`,
           borderRadius: 12,
-          backgroundColor: '#FFFFFF',
-        },
-        columnHeaders: {
-          backgroundColor: '#FAFBFC',
-          borderBottom: `1px solid ${grey[200]}`,
-        },
-        row: {
-          borderBottom: `1px solid ${grey[100]}`,
-        },
+          backgroundColor: theme.palette.background.paper,
+          overflow: 'hidden',
+
+          // Headers
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: theme.palette.background.default,
+            borderBottom: `1px solid ${theme.palette.divider}`,
+          },
+          '& .MuiDataGrid-columnHeaderTitle': {
+            fontWeight: 600,
+            color: theme.palette.text.secondary,
+          },
+
+          // Rows
+          '& .MuiDataGrid-virtualScrollerRenderZone .MuiDataGrid-row': {
+            borderBottom: `1px solid ${theme.palette.divider}`,
+          },
+          '& .MuiDataGrid-row:hover': {
+            backgroundColor: 'rgba(15, 23, 42, 0.03)',
+          },
+          '& .MuiDataGrid-row:nth-of-type(even) .MuiDataGrid-cell': {
+            backgroundColor: 'transparent',
+          },
+          '& .MuiDataGrid-row:nth-of-type(odd) .MuiDataGrid-cell': {
+            backgroundColor: 'rgba(2, 6, 23, 0.015)',
+          },
+
+          // Focus
+          '& .MuiDataGrid-cell:focus, & .MuiDataGrid-columnHeader:focus': {
+            outline: 'none',
+          },
+
+          // Footer
+          '& .MuiDataGrid-footerContainer': {
+            borderTop: `1px solid ${theme.palette.divider}`,
+            backgroundColor: theme.palette.background.paper,
+          },
+        }),
       },
     },
   },

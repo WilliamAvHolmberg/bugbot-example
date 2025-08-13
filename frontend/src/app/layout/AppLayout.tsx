@@ -11,7 +11,7 @@ export function AppLayout({ children }: PropsWithChildren) {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <AppBar position="fixed" color="default" sx={{ zIndex: (t) => t.zIndex.drawer + 1 }}>
+      <AppBar position="fixed" color="default">
         <Toolbar sx={{ gap: 2 }}>
           <IconButton color="inherit" edge="start" sx={{ display: { md: 'none' } }} onClick={toggle}>
             <MenuIcon />

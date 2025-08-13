@@ -72,14 +72,10 @@ export function UsersTable() {
     []
   )
 
-  // React Query refetches automatically when `params` changes
-  console.log(rows, query.data?.data.items)
   return (
     <Box sx={{ width: '100%' }}>
       <DataGrid
         autoHeight
-        columnHeaderHeight={44}
-        rowHeight={44}
         rows={rows}
         columns={columns}
         paginationMode="server"
@@ -97,47 +93,7 @@ export function UsersTable() {
         sortingMode="client"
         sortModel={sortModel}
         onSortModelChange={setSortModel}
-        disableRowSelectionOnClick
-        disableColumnMenu
         slots={{ toolbar: SoftToolbar }}
-        density="compact"
-        sx={(t) => ({
-          '--DataGrid-containerBackground': 'transparent',
-          '--DataGrid-cellPaddingInline': '14px',
-          '--DataGrid-cellPaddingBlock': '10px',
-          border: `1px solid ${t.palette.divider}`,
-          overflow: 'hidden',
-          backgroundColor: t.palette.background.paper,
-          '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: t.palette.background.default,
-            borderBottom: `1px solid ${t.palette.divider}`,
-            '& .MuiDataGrid-columnHeaderTitle': {
-              fontWeight: 600,
-              color: 'text.secondary',
-            },
-          },
-          '& .MuiDataGrid-virtualScrollerRenderZone': {
-            '& .MuiDataGrid-row': {
-              borderBottom: `1px solid ${t.palette.divider}`,
-            },
-          },
-          '& .MuiDataGrid-row:hover': {
-            backgroundColor: 'rgba(15, 23, 42, 0.03)',
-          },
-          '& .MuiDataGrid-row:nth-of-type(even) .MuiDataGrid-cell': {
-            backgroundColor: 'transparent',
-          },
-          '& .MuiDataGrid-row:nth-of-type(odd) .MuiDataGrid-cell': {
-            backgroundColor: 'rgba(2, 6, 23, 0.015)',
-          },
-          '& .MuiDataGrid-cell:focus, & .MuiDataGrid-columnHeader:focus': {
-            outline: 'none',
-          },
-          '& .MuiDataGrid-footerContainer': {
-            borderTop: `1px solid ${t.palette.divider}`,
-            backgroundColor: t.palette.background.paper,
-          },
-        })}
       />
     </Box>
   )

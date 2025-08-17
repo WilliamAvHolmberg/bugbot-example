@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import AddIcon from '@mui/icons-material/Add'
 import { useState } from 'react'
 import { UsersTable } from '../components/UsersTable'
-import { usePostApiUsers, getGetApiUsersQueryKey } from '../../../api/generated'
+import { usePostApiUsers, getGetApiUsersQueryKey } from '../../../../../api/generated'
 
 export function UsersPage() {
   const [open, setOpen] = useState(false)

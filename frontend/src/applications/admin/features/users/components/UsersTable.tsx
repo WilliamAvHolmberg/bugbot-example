@@ -2,7 +2,7 @@ import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid'
 import type { GridColDef, GridPaginationModel, GridFilterModel, GridSortModel } from '@mui/x-data-grid'
 import { Box } from '@mui/material'
 import { useMemo, useState } from 'react'
-import { useGetApiUsers } from '../../../api/generated'
+import { useGetApiUsers } from '../../../../../api/generated'
 
 function SoftToolbar() {
   return (

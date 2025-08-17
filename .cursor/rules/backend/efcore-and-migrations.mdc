@@ -1,0 +1,21 @@
+---
+description: EF Core and migration practices
+globs: backend/**/*.cs,backend/Migrations/**/*.cs
+alwaysApply: false
+---
+
+### **DbContext & Npgsql**
+- Register via `AddDbContext` with Npgsql provider.
+- Use `EF.Functions.ILike` for case-insensitive search on Postgres.
+
+### **Read vs write**
+- Reads: `AsNoTracking()` + projection to DTOs.
+- Writes: keep transactions short; call `SaveChangesAsync` once per command when possible.
+
+### **Migrations**
+- Generate migrations with meaningful names; keep them small and reversible.
+- Apply automatically in Development as configured; prefer explicit apply in other environments.
+
+### **Queries**
+- Ensure deterministic ordering before pagination.
+- Avoid N+1 queries; prefer single roundtrips with projections.

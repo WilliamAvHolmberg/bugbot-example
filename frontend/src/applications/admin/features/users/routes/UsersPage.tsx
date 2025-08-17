@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import AddIcon from '@mui/icons-material/Add'
 import { useState } from 'react'
 import { UsersTable } from '../components/UsersTable'
-import { usePostApiUsers, getGetApiUsersQueryKey } from '../api/generated'
+import { usePostApiUsers, getGetApiUsersQueryKey } from '../../../../../api/generated'
 
 export function UsersPage() {
   const [open, setOpen] = useState(false)
@@ -49,13 +49,13 @@ export function UsersPage() {
         <DialogTitle>Create User</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
-            <TextField label="Email" value={email} onChange={(e) => setEmail(e.target.value)} autoFocus fullWidth />
-            <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} fullWidth />
+            <TextField label="Email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoFocus fullWidth />
+            <TextField label="Name" required value={name} onChange={(e) => setName(e.target.value)} fullWidth />
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={onCreate} disabled={createUser.isPending}>
+          <Button variant="contained" onClick={onCreate} disabled={createUser.isPending || !email || !name}>
             Create
           </Button>
         </DialogActions>

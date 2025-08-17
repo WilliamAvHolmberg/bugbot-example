@@ -1,32 +1,8 @@
-import { createContext, useContext, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { PropsWithChildren } from 'react'
 import { usePostApiAuthSendOtp, usePostApiAuthVerifyOtp, useGetApiAuthMe, usePostApiAuthLogout } from '../api/generated'
 import { useQueryClient } from '@tanstack/react-query'
-
-export type AuthUser = { userId: string; email: string }
-
-export type OtpStep = 'idle' | 'email-sent' | 'verifying'
-
-export interface AuthState {
-  user: AuthUser | null
-  isAuthenticated: boolean
-  isLoading: boolean
-  otpStep: OtpStep
-  otpEmail: string | null
-  error: string | null
-}
-
-export interface AuthActions {
-  sendOtp: (email: string) => Promise<boolean>
-  verifyOtp: (email: string, otpCode: string) => Promise<boolean>
-  logout: () => Promise<void>
-  clearError: () => void
-  refetchAuth: () => void
-}
-
-export type AuthContextType = AuthState & AuthActions
-
-const AuthContext = createContext<AuthContextType | null>(null)
+import { AuthContext, type AuthContextType, type AuthState, type AuthUser } from './authContext'
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient()
@@ -54,8 +30,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
     if (me.isLoading) {
       return { isLoading: true, isAuthenticated: false, user: null as AuthUser | null }
     }
-    const data = me.data?.data
-    const isAuthenticated = !!data?.isAuthenticated && !!data?.userId && !!data?.email
+    // OpenAPI may not describe the /me shape precisely; narrow defensively
+    const raw = me.data?.data as unknown
+    const data = raw && typeof raw === 'object'
+      ? (raw as Partial<{ isAuthenticated: boolean; userId: string; email: string }>)
+      : undefined
+    const isAuthenticated = !!(data?.isAuthenticated && data?.userId && data?.email)
     const user = isAuthenticated ? ({ userId: data!.userId!, email: data!.email! } as AuthUser) : null
     return { isLoading: false, isAuthenticated, user }
   }, [me.isLoading, me.data])
@@ -107,6 +87,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }
 
   const clearError = () => setState((s) => ({ ...s, error: null }))
+  const backToEmail = () => setState((s) => ({ ...s, otpStep: 'idle' }))
   const refetchAuth = () => me.refetch()
 
   const value: AuthContextType = {
@@ -115,16 +96,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
     verifyOtp,
     logout,
     clearError,
+    backToEmail,
     refetchAuth,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth(): AuthContextType {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider')
-  return ctx
 }
 
 

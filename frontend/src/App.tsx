@@ -1,15 +1,18 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './app/layout/AppLayout'
-import { DashboardPage } from './pages/DashboardPage'
-import { UsersPage } from './pages/UsersPage'
+import { AppSelector } from './app/navigation/AppSelector'
+import { buildRoutes, getAllRoutes } from './app/routing/routeBuilder'
+import { applications } from './applications'
 
 function App() {
+  const allRoutes = getAllRoutes(applications)
+
   return (
     <BrowserRouter>
       <AppLayout>
         <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/users" element={<UsersPage />} />
+          <Route path="/" element={<AppSelector />} />
+          {buildRoutes(allRoutes)}
         </Routes>
       </AppLayout>
     </BrowserRouter>

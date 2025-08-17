@@ -1,0 +1,26 @@
+---
+description: ASP.NET Core API conventions in this repo
+globs: backend/**/*.cs
+alwaysApply: false
+---
+
+### **Routes and controllers**
+- Use `[ApiController]` and `[Route("api/<feature>")]` on feature controllers.
+- Keep controllers thin; delegate to MediatR commands/queries.
+- Prefer `IResult` or `ActionResult<T>` with proper status codes.
+
+### **Validation**
+- Validate inputs with DataAnnotations on command records (e.g., `[Required]`, `[EmailAddress]`).
+- Return clear messages for domain/validation errors.
+
+### **Pagination and filtering**
+- Query params: `search`, `page` (default 1), `pageSize` (default 20).
+- For reads: use `AsNoTracking()`, deterministic `OrderBy`, then `Skip/Take`.
+- Return a `PagedResult<T>` record with `Items`, `Total`, `Page`, `PageSize`.
+
+### **Swagger/OpenAPI**
+- Ensure endpoints appear under `v1`; annotate responses when useful.
+- Keep DTOs stable; coordinate with frontend client generation.
+
+### **CORS**
+- Respect configured policy in `Program.cs` (Frontend origins on ports 5173/5174).
